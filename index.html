@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catatan Belajar Ku - S1 Manajemen Universitas Terbuka</title>
+    <!-- Tailwind CSS, Font Awesome, and Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @keyframes chisaBreath {
+            0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.4)); }
+            50% { transform: translateY(-4px) scale(1.02); filter: drop-shadow(0 0 12px rgba(236, 72, 153, 0.5)); }
+        }
+        .chisa-live { animation: chisaBreath 4s ease-in-out infinite; transition: all 0.2s ease; }
+        .chisa-live:active { transform: scale(0.92) rotate(-3deg); }
+        .slide-sidebar { transition: transform 0.3s ease-in-out; }
+
+        body.dark-theme {
+            background: linear-gradient(to bottom right, #020617, #0f172a, #3b0764);
+            color: #f3f4f6;
+        }
+        body.light-theme {
+            background: linear-gradient(to bottom right, #f8fafc, #f1f5f9, #f3e8ff);
+            color: #1e293b;
+        }
+
+        .dark-theme .card-bg { background-color: rgba(15, 23, 42, 0.9); border-color: rgba(107, 33, 168, 0.5); }
+        .light-theme .card-bg { background-color: rgba(255, 255, 255, 0.9); border-color: rgba(216, 180, 254, 0.8); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.08); }
+
+        .dark-theme .header-bg { background-color: rgba(15, 23, 42, 0.9); border-color: rgba(107, 33, 168, 0.5); }
+        .light-theme .header-bg { background-color: rgba(255, 255, 255, 0.95); border-color: rgba(216, 180, 254, 0.6); }
+
+        .dark-theme .text-main { color: #f3e8ff; }
+        .light-theme .text-main { color: #3b0764; }
+
+        .dark-theme .text-sub { color: rgba(216, 180, 254, 0.7); }
+        .light-theme .text-sub { color: #6b21a8; }
+
+        .dark-theme .inner-box { background-color: #020617; border-color: rgba(107, 33, 168, 0.4); }
+        .light-theme .inner-box { background-color: #faf5ff; border-color: rgba(233, 213, 255, 0.8); color: #331053; }
+    </style>
+</head>
+<body class="dark-theme font-sans antialiased min-h-screen pb-12 relative overflow-x-hidden transition-colors duration-300">
+
+    <!-- MODAL WELCOME SETUP -->
+    <div id="welcome-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="card-bg rounded-xl max-w-sm w-full p-6 shadow-2xl border border-pink-500/50 space-y-4">
+            <div class="text-center space-y-1">
+                <i class="fas fa-graduation-cap text-3xl text-pink-500"></i>
+                <h3 class="font-bold text-base text-main">Selamat Datang di Catatan Belajar Ku</h3>
+                <p class="text-[11px] text-sub">Masukkan identitas mahasiswa kamu untuk memulai:</p>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1 text-main">Nama Lengkap:</label>
+                    <input type="text" id="welcome-name" placeholder="Contoh: Daffa Nur Febriansyah" class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">NIM:</label>
+                    <input type="text" id="welcome-nim" placeholder="Contoh: 056131945" class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">Semester Aktif Saat Ini:</label>
+                    <select id="welcome-semester" class="w-full inner-box border rounded p-2 text-main font-semibold text-pink-500">
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3" selected>Semester 3 (Aktif)</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8">Semester 8</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="saveWelcomeProfile()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-2 rounded-lg text-xs transition shadow-md">
+                Mulai Belajar 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- TOP HEADER -->
+    <header class="header-bg backdrop-blur-md shadow-lg sticky top-0 z-40 border-b transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleSlideNav()" class="p-2 rounded-lg bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 transition">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div class="flex items-center space-x-2 cursor-pointer" onclick="showDashboard()">
+                    <i class="fas fa-book-open text-xl text-pink-500"></i>
+                    <span class="font-bold text-base sm:text-lg tracking-wide text-main">Catatan Belajar Ku</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="hidden lg:flex items-center gap-1.5">
+                    <button onclick="exportDataBackup()" class="p-1.5 px-2.5 rounded-lg bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 text-[11px] font-semibold flex items-center gap-1 transition" title="Download cadangan data JSON">
+                        <i class="fas fa-download text-pink-400"></i> Backup
+                    </button>
+                    <label class="p-1.5 px-2.5 rounded-lg bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition" title="Pulihkan data dari file JSON">
+                        <i class="fas fa-upload text-purple-300"></i> Restore
+                        <input type="file" id="restore-file-input" accept=".json" onchange="importDataBackup(event)" class="hidden">
+                    </label>
+                </div>
+
+                <a href="https://elearning.ut.ac.id" target="_blank" class="p-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center gap-1.5 transition shadow-md">
+                    <i class="fas fa-external-link-alt text-yellow-300"></i>
+                    <span class="hidden md:inline">e-Learning UT</span>
+                </a>
+
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="p-2 px-3 rounded-lg bg-purple-900/30 hover:bg-purple-800/50 border border-purple-700/40 text-pink-400 font-semibold text-xs flex items-center gap-1.5 transition">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                    <span id="theme-text" class="hidden sm:inline">Gelap</span>
+                </button>
+
+                <div class="flex items-center space-x-3 cursor-pointer p-1.5 rounded-lg hover:bg-purple-900/30 transition" onclick="openProfileModal()">
+                    <img id="header-avatar" src="https://ui-avatars.com/api/?name=Daffa+Nur+Febriansyah&background=0D8ABC&color=fff" class="w-9 h-9 rounded-full border-2 border-pink-400 object-cover shadow-sm">
+                    <div class="text-right hidden sm:block">
+                        <div id="header-name" class="font-bold text-xs text-main">Daffa Nur Febriansyah</div>
+                        <div id="header-nim" class="text-[10px] text-pink-500/80">NIM: 056131945</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SLIDE-OUT NAVIGATION -->
+    <div id="nav-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleSlideNav()"></div>
+    <aside id="slide-nav" class="fixed top-0 left-0 w-80 h-full card-bg z-50 shadow-2xl slide-sidebar -translate-x-full overflow-y-auto p-4 flex flex-col justify-between border-r">
+        <div>
+            <div class="flex justify-between items-center border-b border-purple-800/40 pb-3 mb-4">
+                <div class="flex items-center space-x-2 text-pink-500 font-bold">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Navigasi Kuliah</span>
+                </div>
+                <button onclick="toggleSlideNav()" class="text-gray-400 hover:text-pink-400 text-lg">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul class="text-xs space-y-2">
+                <li class="font-bold cursor-pointer p-2 rounded-lg bg-purple-900/40 border border-purple-700/40 text-purple-200 transition" onclick="showDashboard(); toggleSlideNav();">
+                    <i class="fas fa-tachometer-alt mr-2 text-pink-400"></i> Dashboard Utama
+                </li>
+                <li class="font-bold cursor-pointer p-2 rounded-lg bg-blue-900/40 border border-blue-700/40 text-blue-200 transition mt-2">
+                    <a href="https://elearning.ut.ac.id" target="_blank" class="flex items-center justify-between w-full">
+                        <span><i class="fas fa-university mr-2 text-yellow-400"></i> Portal Tuton UT</span>
+                        <i class="fas fa-arrow-right text-[10px]"></i>
+                    </a>
+                </li>
+                <li class="pl-2 border-l-2 border-purple-500/50 space-y-1 mt-3" id="tree-menu"></li>
+            </ul>
+        </div>
+        <div class="text-[10px] text-sub text-center border-t border-purple-800/40 pt-3 space-y-2">
+            <div>UT Learning Log • S1 Manajemen</div>
+            <div class="flex justify-center gap-2">
+                <button onclick="exportDataBackup()" class="text-pink-400 hover:underline">Backup</button>
+                <span>•</span>
+                <button onclick="resetAllAppData()" class="text-red-400 hover:underline">Reset Data</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="space-y-5">
+
+            <!-- KALENDER AKADEMIK UT 2026/2027 -->
+            <div class="card-bg p-4 rounded-xl shadow-lg border border-purple-800/50 transition-colors duration-300">
+                <div class="flex justify-between items-center border-b border-purple-800/40 pb-2 mb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-calendar-check text-pink-500 text-sm"></i>
+                        <h2 class="font-bold text-xs sm:text-sm text-main">📅 Kalender Akademik Resmi UT (Semester 2026/2027)</h2>
+                    </div>
+                    <span class="text-[10px] bg-purple-900/60 text-pink-300 px-2.5 py-0.5 rounded-full font-mono border border-purple-700/40">Tahun Ajaran 2026</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="inner-box p-3 rounded-lg border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-xs text-pink-400">Tutorial Online (Tuton)</span>
+                                <i class="fas fa-laptop-code text-pink-400 text-xs"></i>
+                            </div>
+                            <div class="text-[10px] text-sub mb-2">14 Sep – 23 Nov 2026</div>
+                        </div>
+                        <div id="cd-tuton" class="font-mono font-bold text-sm text-main bg-purple-950/60 p-2 rounded text-center border border-purple-800/50">
+                            Menghitung...
+                        </div>
+                    </div>
+
+                    <div class="inner-box p-3 rounded-lg border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-xs text-amber-400">Cetak KTPU (Kartu Ujian)</span>
+                                <i class="fas fa-id-card text-amber-400 text-xs"></i>
+                            </div>
+                            <div class="text-[10px] text-sub mb-2">14 Okt – 28 Nov 2026</div>
+                        </div>
+                        <div id="cd-ktpu" class="font-mono font-bold text-sm text-main bg-purple-950/60 p-2 rounded text-center border border-purple-800/50">
+                            Menghitung...
+                        </div>
+                    </div>
+
+                    <div class="inner-box p-3 rounded-lg border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-xs text-red-400">Pelaksanaan UAS (Online/TM)</span>
+                                <i class="fas fa-file-signature text-red-400 text-xs"></i>
+                            </div>
+                            <div class="text-[10px] text-sub mb-2">28 Nov – 13 Des 2026</div>
+                        </div>
+                        <div id="cd-uas" class="font-mono font-bold text-sm text-main bg-purple-950/60 p-2 rounded text-center border border-purple-800/50">
+                            Menghitung...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHISA PSIKOLOG + IPK + JADWAL -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-1 bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 rounded-xl p-3.5 text-white shadow-lg border border-purple-800/50 flex items-center space-x-3 relative overflow-hidden">
+                    <div class="relative cursor-pointer flex-shrink-0" onclick="openChisaPsyModal()">
+                        <img data-chisa="1" class="w-14 h-14 rounded-full border-2 border-pink-400/80 object-cover object-top chisa-live shadow-md">
+                        <span class="absolute bottom-0 right-0 bg-green-500 w-3 h-3 rounded-full border-2 border-slate-900"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-xs text-pink-300 truncate">Chisa Psikolog AI</h3>
+                            <button onclick="openChisaPsyModal()" class="text-[10px] text-pink-200 hover:text-white bg-pink-600/50 hover:bg-pink-600/80 px-2 py-0.5 rounded-lg border border-pink-400/50 transition font-semibold">
+                                💬 Konsultasi AI
+                            </button>
+                        </div>
+                        <p id="chisa-speech" class="text-[11px] text-purple-100 mt-1 italic leading-snug line-clamp-2">
+                            "Lagi stres sama tugas atau bingung susun jadwal? Sini cerita sama Chisa..."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-1 card-bg p-3.5 rounded-xl shadow-lg border flex flex-col justify-between transition-colors duration-300">
+                    <div class="flex justify-between items-center border-b border-purple-800/40 pb-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-graduation-cap text-pink-500 text-xs"></i>
+                            <h2 class="font-bold text-xs text-main">IPK & Kalkulator Nilai</h2>
+                        </div>
+                        <button onclick="openGradeModal()" class="text-[10px] bg-pink-500/20 hover:bg-pink-500/30 text-pink-500 font-semibold px-2 py-0.5 rounded border border-pink-500/30 transition">
+                            + Input / Simulator
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between my-1 px-2">
+                        <div>
+                            <div class="text-[10px] text-sub">Estimasi IPK Saat Ini</div>
+                            <div id="ipk-display" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">0.00</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-sub">Total SKS Terinput</div>
+                            <div id="sks-display" class="text-sm font-bold text-main">0 SKS</div>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-sub text-right">
+                        *Dihitung otomatis dari nilai matkul yang disimpan
+                    </div>
+                </div>
+
+                <div class="md:col-span-1 card-bg p-3.5 rounded-xl shadow-lg border transition-colors duration-300">
+                    <div class="flex justify-between items-center border-b border-purple-800/40 pb-2 mb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-calendar-alt text-purple-500 text-xs"></i>
+                            <h2 class="font-bold text-xs text-main">Jadwal & Pengingat</h2>
+                        </div>
+                        <button onclick="toggleScheduleForm()" class="text-[10px] bg-purple-500/20 text-purple-500 hover:bg-purple-500/30 px-2 py-0.5 rounded border border-purple-500/30 font-semibold transition">
+                            + Jadwal
+                        </button>
+                    </div>
+                    <div id="schedule-form" class="hidden inner-box p-2 rounded border mb-2 text-xs space-y-1.5">
+                        <input type="text" id="sched-title" placeholder="Mata Kuliah / Tugas..." class="w-full inner-box border rounded p-1 text-xs">
+                        <div class="flex gap-1.5">
+                            <input type="date" id="sched-date" class="w-full inner-box border rounded p-1 text-xs">
+                            <button onclick="addSchedule()" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded px-3 text-xs">Simpan</button>
+                        </div>
+                    </div>
+                    <div id="schedule-list" class="space-y-1.5 max-h-20 overflow-y-auto pr-1 text-xs"></div>
+                </div>
+            </div>
+
+            <!-- SITASI APA 7th & KARIL UT -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="card-bg p-4 rounded-xl shadow-lg border space-y-3">
+                    <div class="flex justify-between items-center border-b border-purple-800/30 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-quote-right text-pink-500 text-sm"></i>
+                            <h3 class="font-bold text-xs sm:text-sm text-main">Generator Sitasi APA 7th (BMP & Jurnal)</h3>
+                        </div>
+                        <span class="text-[9px] bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded font-mono">Standar UT</span>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="cite-author" placeholder="Penulis (Contoh: Sugiyono)" class="inner-box border rounded p-1.5 text-main">
+                            <input type="text" id="cite-year" placeholder="Tahun (Contoh: 2023)" class="inner-box border rounded p-1.5 text-main">
+                        </div>
+                        <input type="text" id="cite-title" placeholder="Judul Buku BMP / Artikel Jurnal" class="w-full inner-box border rounded p-1.5 text-main">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="cite-publisher" placeholder="Penerbit (Contoh: Universitas Terbuka)" class="inner-box border rounded p-1.5 text-main">
+                            <input type="text" id="cite-edition" placeholder="Edisi / Volume (Opsional)" class="inner-box border rounded p-1.5 text-main">
+                        </div>
+                        <button onclick="generateApaCitation()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-1.5 rounded transition">Buat Format Sitasi APA 7th</button>
+                    </div>
+
+                    <div id="cite-result-box" class="hidden inner-box p-2.5 rounded border text-xs font-mono select-all text-pink-300"></div>
+                </div>
+
+                <div class="card-bg p-4 rounded-xl shadow-lg border space-y-3">
+                    <div class="flex justify-between items-center border-b border-purple-800/30 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-file-alt text-purple-400 text-sm"></i>
+                            <h3 class="font-bold text-xs sm:text-sm text-main">Generator Draf Karil (Karya Ilmiah UT)</h3>
+                        </div>
+                        <span class="text-[9px] bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded">S1 Manajemen</span>
+                    </div>
+
+                    <p class="text-[10px] text-sub">Rancang draf karya ilmiah akademis UT berdasarkan judul atau topik usulanmu.</p>
+
+                    <div class="space-y-2 text-xs">
+                        <input type="text" id="karil-topic" placeholder="Masukkan Judul/Topik Karil (e.g. Analisis Kinerja SDM PT BRI Tbk)" class="w-full inner-box border rounded p-2 text-main">
+                        <div class="flex gap-2">
+                            <button onclick="generateKarilOutline()" class="flex-1 bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white font-semibold py-1.5 rounded transition">
+                                📑 Buat Struktur Draf Karil
+                            </button>
+                            <button onclick="analyzeKarilAbstractWithAi()" class="bg-pink-600 hover:bg-pink-500 text-white font-semibold px-3 py-1.5 rounded transition">
+                                🤖 Analisis AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="karil-result-box" class="hidden inner-box p-2.5 rounded border text-[11px] leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap text-sub"></div>
+                </div>
+            </div>
+
+            <!-- POMODORO TIMER -->
+            <div class="card-bg p-4 rounded-xl shadow-lg border flex flex-col md:flex-row items-center justify-between gap-4 transition-colors duration-300">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-500 text-lg">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs sm:text-sm text-main">Pomodoro Focus Timer & Ambient</h3>
+                        <p class="text-[10px] text-sub">Jaga ritme belajar 25 menit fokus + 5 menit istirahat</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 flex-wrap justify-center">
+                    <div id="pomo-display" class="font-mono font-black text-2xl text-pink-500 tracking-wider">25:00</div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="startPomodoro()" id="pomo-start-btn" class="bg-pink-600 hover:bg-pink-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition">Start</button>
+                        <button onclick="pausePomodoro()" class="bg-slate-700 hover:bg-slate-600 text-gray-200 text-xs px-3 py-1.5 rounded-lg font-semibold transition">Pause</button>
+                        <button onclick="resetPomodoro()" class="inner-box border text-sub hover:text-main text-xs px-2.5 py-1.5 rounded-lg transition"><i class="fas fa-undo"></i></button>
+                    </div>
+
+                    <div class="flex items-center gap-2 border-l border-purple-800/30 pl-4">
+                        <i class="fas fa-cloud-rain text-blue-400 text-sm"></i>
+                        <audio id="rain-audio" loop src="https://assets.mixkit.co/active_storage/sfx/1250/1250-preview.mp3"></audio>
+                        <button onclick="toggleAmbientRain()" id="rain-btn" class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg font-medium hover:bg-blue-500/30 transition">
+                            🔊 Rain Ambient: OFF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAFIK -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 card-bg p-4 rounded-xl shadow-lg border">
+                    <div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-3">
+                        <h3 class="font-bold text-xs sm:text-sm text-main"><i class="fas fa-chart-line text-pink-500 mr-2"></i>Grafik Progres IPK per Semester</h3>
+                        <span class="text-[10px] text-sub">Target S1 UT</span>
+                    </div>
+                    <div class="h-48 relative">
+                        <canvas id="ipkChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="md:col-span-1 card-bg p-4 rounded-xl shadow-lg border flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-3">
+                        <h3 class="font-bold text-xs sm:text-sm text-main"><i class="fas fa-chart-pie text-purple-500 mr-2"></i>Progres Kelulusan SKS</h3>
+                        <span class="text-[10px] text-pink-500 font-bold">Total 144 SKS</span>
+                    </div>
+                    <div class="h-40 relative flex items-center justify-center">
+                        <canvas id="sksChart"></canvas>
+                    </div>
+                    <div class="text-[10px] text-sub text-center mt-2" id="sks-pie-legend">
+                        Memuat data SKS...
+                    </div>
+                </div>
+            </div>
+
+            <!-- COURSE OVERVIEW HEADER -->
+            <div class="card-bg p-3.5 rounded-xl shadow-md border flex flex-wrap gap-3 justify-between items-center transition-colors duration-300">
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-main">Course Overview</h1>
+                    <p class="text-[11px] text-sub">Pilih semester untuk menampilkan mata kuliah</p>
+                </div>
+                <div>
+                    <select id="semester-filter" onchange="renderCourses()" class="text-xs border rounded-lg px-2.5 py-1.5 inner-box font-semibold text-pink-500 focus:outline-none">
+                        <option value="all">Semua Semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8">Semester 8</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- GRID KARTU KELAS -->
+            <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- DETAIL COURSE VIEW -->
+        <section id="course-detail-view" class="hidden space-y-4">
+            <div class="card-bg p-4 rounded-xl shadow-md border flex flex-wrap justify-between items-center gap-3 transition-colors duration-300">
+                <div>
+                    <button onclick="showDashboard()" class="text-xs text-pink-500 font-semibold mb-1 block hover:underline">
+                        ← Kembali ke Dashboard
+                    </button>
+                    <h2 id="course-title" class="text-lg font-bold text-main">Detail Mata Kuliah</h2>
+                    <span id="course-code-badge" class="text-xs bg-purple-900/40 text-pink-400 px-2 py-0.5 rounded font-mono font-bold border border-purple-700/50">CODE</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportCourseNotesToTxt()" class="bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/50 text-xs px-3 py-2 rounded-lg font-semibold transition flex items-center gap-1">
+                        <i class="fas fa-file-download text-pink-400"></i> Export Ringkasan
+                    </button>
+                    <a href="https://pustaka.ut.ac.id/lib/ruangbaca/" target="_blank" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-2 rounded-lg font-semibold transition shadow-md flex items-center gap-1">
+                        <i class="fas fa-book-reader text-yellow-300"></i> Modul RBV UT
+                    </a>
+                    <a href="https://elearning.ut.ac.id" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-2 rounded-lg font-semibold transition shadow-md flex items-center gap-1">
+                        <i class="fas fa-university text-yellow-300"></i> Buka Tuton
+                    </a>
+                    <button onclick="toggleForm()" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-xs px-3 py-2 rounded-lg font-semibold transition shadow-md">
+                        + Tambah Catatan
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHECKLIST TUGAS TUTON & TOMBOL .ICS -->
+            <div class="card-bg p-4 rounded-xl shadow-lg border transition-colors duration-300 space-y-3">
+                <div class="flex justify-between items-center border-b border-purple-800/30 pb-2">
+                    <h3 class="font-bold text-xs sm:text-sm text-main"><i class="fas fa-tasks text-pink-500 mr-2"></i>Checklist & Nilai Tugas Tuton (Sesi 3, 5, 7)</h3>
+                    <button onclick="downloadCourseIcs()" class="text-[10px] bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/40 px-2.5 py-1 rounded-lg font-semibold transition flex items-center gap-1">
+                        <i class="fas fa-calendar-plus"></i> Sync Kalender (.ics)
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs" id="tuton-assignments-container"></div>
+            </div>
+
+            <!-- PANEL DOSEN CHISA VIRTUAL -->
+            <div class="bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 p-4 rounded-xl text-white shadow-lg border border-purple-800/50 space-y-3">
+                <div class="flex justify-between items-center border-b border-purple-800/80 pb-2.5">
+                    <div class="flex items-center space-x-2.5">
+                        <img data-chisa="1" class="w-7 h-7 rounded-full border border-pink-400 object-cover object-top">
+                        <h3 class="font-bold text-xs sm:text-sm text-pink-300" id="ai-dosen-title">Dosen Chisa Virtual</h3>
+                    </div>
+                    <button onclick="openAiSettingsModal()" class="text-[10px] bg-white/10 hover:bg-white/20 px-2 py-1 rounded-lg border border-white/20 transition flex items-center gap-1">
+                        <i class="fas fa-cog text-yellow-400"></i> Edit API Keys AI
+                    </button>
+                </div>
+                
+                <div id="ai-response-box" class="text-xs text-purple-100 bg-black/50 p-3 rounded-lg min-h-[60px] leading-relaxed whitespace-pre-wrap border border-purple-900/50">
+                    Halo! Saya Dosen Chisa Virtual. Ada materi atau pertanyaan forum yang kurang kamu pahami? Tanyakan saja atau lampirkan file materi di bawah!
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 bg-slate-950/80 border border-purple-700/60 rounded-lg p-1.5 px-3">
+                        <i class="fas fa-paperclip text-pink-400 text-xs"></i>
+                        <input type="file" id="ai-dosen-file" accept="image/*,.pdf,.doc,.docx,.txt" class="text-[11px] text-purple-300 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900 file:text-pink-200 hover:file:bg-purple-800 cursor-pointer flex-1">
+                        <span class="text-[9px] text-purple-300/60 font-mono">(Maks 3MB)</span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-matkul-input" placeholder="Tanyakan soal materi atau instruksi file ke Dosen Chisa..." class="flex-1 text-xs bg-slate-950/80 border border-purple-700/60 rounded-lg px-3 py-2 text-white placeholder-purple-300/50 focus:outline-none focus:ring-1 focus:ring-pink-400">
+                        <button onclick="askDosenAi()" class="bg-gradient-to-r from-purple-700 to-pink-600 hover:from-purple-600 hover:to-pink-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition shadow-md">Tanya Dosen</button>
+                    </div>
+
+                    <div class="flex gap-2 pt-1 border-t border-purple-900/40">
+                        <button onclick="reviewDiscussionDraft()" class="flex-1 bg-indigo-900/60 hover:bg-indigo-800/80 text-purple-200 border border-indigo-600/50 font-semibold text-[11px] py-1.5 rounded-lg transition">
+                            📝 Review Draf & Anti-Plagiasi
+                        </button>
+                        <button onclick="generateMindmapText()" class="flex-1 bg-pink-900/60 hover:bg-pink-800/80 text-pink-200 border border-pink-600/50 font-semibold text-[11px] py-1.5 rounded-lg transition">
+                            🧠 Buat Mindmap Tekstual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KUIS & FLASHCARD CHISA AI -->
+            <div class="card-bg p-4 rounded-xl shadow-lg border transition-colors duration-300">
+                <div class="flex justify-between items-center border-b border-purple-800/30 pb-2.5 mb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-brain text-yellow-500 text-base"></i>
+                        <div>
+                            <h3 class="font-bold text-xs sm:text-sm text-main">Kuis & Flashcard Otomatis</h3>
+                            <p class="text-[10px] text-sub">Uji pemahamanmu berdasarkan catatan yang tersimpan</p>
+                        </div>
+                    </div>
+                    <button onclick="generateQuizAi()" class="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-md flex items-center gap-1.5">
+                        <i class="fas fa-bolt text-yellow-200"></i> Generate Kuis Baru
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="inner-box border-b">
+                                <th class="p-2.5 font-bold text-pink-500 w-1/2">❓ Pertanyaan / Konsep Kunci</th>
+                                <th class="p-2.5 font-bold text-purple-500 w-1/2">💡 Jawaban & Penjelasan Dosen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quiz-table-body" class="divide-y divide-purple-800/20">
+                            <tr>
+                                <td colspan="2" class="p-4 text-center text-sub italic">
+                                    Klik tombol <strong>"Generate Kuis Baru"</strong> untuk membuat soal kuis otomatis berdasarkan catatan matkul ini!
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FORM INPUT CATATAN -->
+            <div id="add-form" class="hidden card-bg p-4 rounded-xl shadow-md border transition-colors duration-300">
+                <h3 class="text-xs font-bold text-pink-500 mb-3 border-b border-purple-800/30 pb-1">Input Catatan Diskusi & Upload File</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 text-xs">
+                    <div>
+                        <label class="block font-semibold mb-1 text-main">Pilih Sesi Tuton:</label>
+                        <select id="input-sesi" class="w-full inner-box border rounded p-2">
+                            <option value="1">Sesi 1</option>
+                            <option value="2">Sesi 2</option>
+                            <option value="3">Sesi 3</option>
+                            <option value="4">Sesi 4</option>
+                            <option value="5">Sesi 5</option>
+                            <option value="6">Sesi 6</option>
+                            <option value="7">Sesi 7</option>
+                            <option value="8">Sesi 8</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-main">Upload File (PDF/Word/Gambar - Maks 3MB):</label>
+                        <input type="file" id="input-file" class="w-full text-xs inner-box border rounded p-1">
+                    </div>
+                </div>
+                <div class="mb-3 text-xs">
+                    <label class="block font-semibold mb-1 text-main">Isi Teks Diskusi:</label>
+                    <textarea id="input-text" rows="4" placeholder="Tuliskan rangkuman materi di sini..." class="w-full inner-box border rounded p-2"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 text-xs">
+                    <button onclick="toggleForm()" class="bg-slate-700 text-gray-200 px-3 py-1.5 rounded-lg">Batal</button>
+                    <button onclick="saveNote()" class="bg-pink-600 hover:bg-pink-500 text-white px-4 py-1.5 rounded-lg font-semibold">Simpan Catatan & File</button>
+                </div>
+            </div>
+
+            <div id="session-list" class="space-y-4"></div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-12 py-8 text-center text-xs text-sub border-t border-purple-900/30 header-bg backdrop-blur-md transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center space-y-3">
+            <div class="font-bold text-sm text-main flex items-center gap-1.5 flex-wrap justify-center">
+                <span>Credit by</span>
+                <span class="text-pink-500 bg-purple-900/20 px-2 py-0.5 rounded border border-purple-700/30">Febrisya</span>
+                <span class="text-sub font-medium">(Founder of Penangkaran Hiu Group)</span>
+            </div>
+            
+            <div class="flex flex-wrap items-center justify-center gap-4 text-[11px] text-sub">
+                <a href="https://wa.me/6285938365970" target="_blank" class="hover:text-green-500 transition flex items-center gap-1">
+                    <i class="fab fa-whatsapp text-green-500"></i> +62 859-3836-5970
+                </a>
+                <span>•</span>
+                <a href="mailto:daffanurfebriansyah@gmail.com" class="hover:text-pink-500 transition flex items-center gap-1">
+                    <i class="fas fa-envelope text-pink-500"></i> daffanurfebriansyah@gmail.com
+                </a>
+            </div>
+
+            <div class="pt-2 border-t border-purple-900/20 w-full max-w-md flex justify-center gap-3">
+                <button onclick="resetAllAppData()" class="text-[10px] bg-red-900/30 text-red-400 px-3 py-1 rounded border border-red-700/40 hover:bg-red-900/50 transition">
+                    🗑️ Reset Data / Hapus File Tes
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL CHISA PSIKOLOG AI -->
+    <div id="chisa-psy-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card-bg rounded-xl max-w-lg w-full p-5 shadow-2xl border border-pink-500/40 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-purple-800/30 pb-3 mb-3">
+                <div class="flex items-center space-x-3">
+                    <img data-chisa="1" class="w-9 h-9 rounded-full border border-pink-400 object-cover object-top">
+                    <div>
+                        <h3 class="font-bold text-sm text-pink-500">Chisa Psikolog Virtual AI</h3>
+                        <p class="text-[10px] text-sub">Konsultasi Stres Belajar & Manajemen Waktu</p>
+                    </div>
+                </div>
+                <button onclick="closeChisaPsyModal()" class="text-gray-400 hover:text-pink-500"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="psy-chat-log" class="flex-1 overflow-y-auto space-y-3 p-2 inner-box rounded-lg border mb-3 text-xs">
+                <div class="bg-purple-900/20 p-3 rounded-lg border border-purple-800/30 text-main leading-relaxed">
+                    "Halo! Aku Chisa Psikolog AI. Kalau kamu merasa capek, burnout, stres karena diskusi/tugas menumpuk, atau mau dibantu bikin jadwal belajar yang santai tapi efektif, cerita aja ya!"
+                </div>
+            </div>
+
+            <div class="flex gap-2 text-xs">
+                <input type="text" id="psy-chat-input" placeholder="Curhat stres belajar atau minta saran jadwal ke Chisa..." class="flex-1 inner-box border rounded-lg px-3 py-2 text-main focus:outline-none focus:ring-1 focus:ring-pink-400" onkeydown="if(event.key==='Enter') askChisaPsy()">
+                <button onclick="askChisaPsy()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-lg transition shadow-md">Kirim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT PROFIL -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card-bg rounded-xl max-w-sm w-full p-5 shadow-2xl border">
+            <div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-4">
+                <h3 class="font-bold text-sm text-pink-500"><i class="fas fa-user-edit mr-2 text-purple-500"></i>Edit Profil Mahasiswa</h3>
+                <button onclick="closeProfileModal()" class="text-gray-400 hover:text-pink-500"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1 text-main">Nama Lengkap:</label>
+                    <input type="text" id="edit-name" class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">NIM:</label>
+                    <input type="text" id="edit-nim" class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">Semester Aktif Saat Ini:</label>
+                    <select id="edit-semester" class="w-full inner-box border rounded p-2 text-main font-semibold text-pink-500">
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8">Semester 8</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">Upload Foto Profil Baru:</label>
+                    <input type="file" id="edit-avatar-file" accept="image/*" class="w-full border rounded p-1 inner-box text-xs">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 mt-5 text-xs">
+                <button onclick="closeProfileModal()" class="px-3 py-1.5 bg-slate-700 text-gray-200 rounded-lg">Batal</button>
+                <button onclick="saveProfile()" class="px-4 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-semibold rounded-lg">Simpan Profil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INPUT NILAI & SIMULATOR TARGET IPK -->
+    <div id="grade-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card-bg rounded-xl max-w-md w-full p-5 shadow-2xl border max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-3">
+                <h3 class="font-bold text-sm text-pink-500"><i class="fas fa-graduation-cap mr-2 text-purple-500"></i>Kelola Nilai & Target IPK</h3>
+                <button onclick="closeGradeModal()" class="text-gray-400 hover:text-pink-500"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="inner-box p-3 rounded-lg border mb-3 space-y-1.5 text-xs">
+                <div class="font-bold text-pink-500 flex justify-between items-center">
+                    <span>🎯 Target IPK Impian:</span>
+                    <input type="number" step="0.01" min="0" max="4.00" id="target-ipk-input" placeholder="e.g. 3.75" oninput="calculateTargetAdvice()" class="w-20 inner-box border rounded px-2 py-0.5 text-right font-bold text-main">
+                </div>
+                <div id="target-advice-box" class="text-[10px] text-sub italic">
+                    Masukkan target IPK di atas untuk melihat rekomendasi nilai minimal di sisa matkul.
+                </div>
+            </div>
+
+            <p class="text-[11px] text-sub mb-2">Masukkan nilai huruf (A, A-, B+, B, dll.) untuk tiap matkul:</p>
+            <div id="grade-input-list" class="space-y-2 overflow-y-auto pr-1 flex-1 text-xs"></div>
+            <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-purple-800/30 text-xs">
+                <button onclick="closeGradeModal()" class="px-3 py-1.5 bg-slate-700 text-gray-200 rounded-lg">Tutup</button>
+                <button onclick="saveGrades()" class="px-4 py-1.5 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-lg">Simpan & Hitung IPK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PENGATURAN MULTI-API GRATIS -->
+    <div id="ai-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card-bg rounded-xl max-w-md w-full p-5 shadow-2xl border">
+            <div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-4">
+                <h3 class="font-bold text-sm text-pink-500"><i class="fas fa-sliders-h mr-2 text-purple-500"></i>Pengaturan Multi-Provider AI (Gratis)</h3>
+                <button onclick="closeAiSettingsModal()" class="text-gray-400 hover:text-pink-500"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1 text-main">1. Gemini API Key (Utama):</label>
+                    <input type="password" id="ai-api-key" placeholder="AQ... / AIzaSy..." class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">2. Groq API Key (Cadangan 1 - Gratis & Cepat):</label>
+                    <input type="password" id="ai-groq-key" placeholder="gsk_..." class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">3. OpenRouter API Key (Cadangan 2 - Gratis):</label>
+                    <input type="password" id="ai-openrouter-key" placeholder="sk-or-v1-..." class="w-full inner-box border rounded p-2 text-main">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-main">System Prompt Dosen Chisa:</label>
+                    <textarea id="ai-system-prompt" rows="3" class="w-full inner-box border rounded p-2 font-mono text-[11px] leading-relaxed text-main"></textarea>
+                </div>
+                <div>
+                    <button onclick="testAiKeys()" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-semibold rounded-lg"><i class="fas fa-plug mr-1"></i>Tes Koneksi API Key</button>
+                    <div id="ai-test-result" class="text-[11px] mt-1 text-sub whitespace-pre-wrap"></div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 mt-5 text-xs">
+                <button onclick="closeAiSettingsModal()" class="px-3 py-1.5 bg-slate-700 text-gray-200 rounded-lg">Batal</button>
+                <button onclick="saveAiSettings()" class="px-4 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-semibold rounded-lg">Simpan Pengaturan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentTheme = localStorage.getItem('app_theme') || 'dark';
+
+        function applyTheme(theme) {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+
+            if (theme === 'light') {
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                if (icon) icon.className = 'fas fa-sun text-yellow-500';
+                if (text) text.innerText = 'Terang';
+            } else {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                if (icon) icon.className = 'fas fa-moon text-pink-400';
+                if (text) text.innerText = 'Gelap';
+            }
+            localStorage.setItem('app_theme', theme);
+            updateChartsTheme();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+        }
+
+        function toggleSlideNav() {
+            const nav = document.getElementById('slide-nav');
+            const overlay = document.getElementById('nav-overlay');
+            if (nav.classList.contains('-translate-x-full')) {
+                nav.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                nav.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        let userProfile = JSON.parse(localStorage.getItem('user_profile')) || null;
+
+        function checkFirstTimeUser() {
+            if (!userProfile) {
+                document.getElementById('welcome-modal').classList.remove('hidden');
+            } else {
+                updateProfileUI();
+                applyActiveSemester();
+            }
+        }
+
+        function saveWelcomeProfile() {
+            const name = document.getElementById('welcome-name').value.trim();
+            const nim = document.getElementById('welcome-nim').value.trim();
+            const semester = document.getElementById('welcome-semester').value;
+
+            if (!name || !nim) return alert('Mohon isi Nama Lengkap dan NIM kamu!');
+
+            userProfile = { name: name, nim: nim, semester: semester, avatar: '' };
+            localStorage.setItem('user_profile', JSON.stringify(userProfile));
+            document.getElementById('welcome-modal').classList.add('hidden');
+            updateProfileUI();
+            applyActiveSemester();
+            alert(`Selamat datang, ${name}! Semester aktif diset ke Semester ${semester}.`);
+        }
+
+        function updateProfileUI() {
+            if (!userProfile) return;
+            document.getElementById('header-name').innerText = userProfile.name;
+            document.getElementById('header-nim').innerText = `NIM: ${userProfile.nim} (Sem ${userProfile.semester || 3})`;
+            document.getElementById('header-avatar').src = userProfile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=0D8ABC&color=fff`;
+        }
+
+        function applyActiveSemester() {
+            if (!userProfile || !userProfile.semester) return;
+            const filterEl = document.getElementById('semester-filter');
+            if (filterEl) {
+                filterEl.value = userProfile.semester;
+                renderCourses();
+                renderTreeMenu();
+            }
+        }
+
+        function openProfileModal() {
+            if (!userProfile) userProfile = { name: '', nim: '', semester: '3', avatar: '' };
+            document.getElementById('edit-name').value = userProfile.name;
+            document.getElementById('edit-nim').value = userProfile.nim;
+            document.getElementById('edit-semester').value = userProfile.semester || '3';
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+        function saveProfile() {
+            userProfile.name = document.getElementById('edit-name').value || 'Mahasiswa UT';
+            userProfile.nim = document.getElementById('edit-nim').value || '000000000';
+            userProfile.semester = document.getElementById('edit-semester').value || '3';
+            const fileInput = document.getElementById('edit-avatar-file');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    localStorage.setItem('user_profile', JSON.stringify(userProfile));
+                    updateProfileUI();
+                    applyActiveSemester();
+                    closeProfileModal();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                localStorage.setItem('user_profile', JSON.stringify(userProfile));
+                updateProfileUI();
+                applyActiveSemester();
+                closeProfileModal();
+            }
+        }
+
+        function resetAllAppData() {
+            if (confirm("⚠ Yakin ingin menghapus seluruh data catatan, file upload, dan nilai? Tindakan ini tidak dapat dibatalkan!")) {
+                localStorage.clear();
+                alert('Semua data berhasil dibersihkan. Web akan dimuat ulang.');
+                window.location.reload();
+            }
+        }
+
+        function updateUtCountdowns() {
+            const now = new Date();
+            const dates = {
+                tuton: new Date('2026-11-23T23:59:59'),
+                ktpu: new Date('2026-10-14T00:00:00'),
+                uas: new Date('2026-11-28T08:00:00')
+            };
+
+            function calcDiff(targetDate) {
+                const diff = targetDate - now;
+                if (diff <= 0) return "Selesai / Sedang Berjalan";
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                return `${days} Hari ${hours} Jam Lagi`;
+            }
+
+            const elTuton = document.getElementById('cd-tuton');
+            const elKtpu = document.getElementById('cd-ktpu');
+            const elUas = document.getElementById('cd-uas');
+
+            if (elTuton) elTuton.innerText = calcDiff(dates.tuton);
+            if (elKtpu) elKtpu.innerText = calcDiff(dates.ktpu);
+            if (elUas) elUas.innerText = calcDiff(dates.uas);
+        }
+
+        function generateApaCitation() {
+            const author = document.getElementById('cite-author').value.trim();
+            const year = document.getElementById('cite-year').value.trim();
+            const title = document.getElementById('cite-title').value.trim();
+            const publisher = document.getElementById('cite-publisher').value.trim();
+            const edition = document.getElementById('cite-edition').value.trim();
+
+            if (!author || !year || !title) return alert('Mohon lengkapi Penulis, Tahun, dan Judul!');
+
+            let citation = `${author}. (${year}). *${title}*`;
+            if (edition) citation += ` (${edition})`;
+            if (publisher) citation += `. ${publisher}.`;
+
+            const box = document.getElementById('cite-result-box');
+            box.innerHTML = `<strong>Daftar Pustaka APA 7th:</strong><br>${citation}`;
+            box.classList.remove('hidden');
+        }
+
+        function generateKarilOutline() {
+            const topic = document.getElementById('karil-topic').value.trim() || "Analisis Manajemen Strategik";
+            const resultBox = document.getElementById('karil-result-box');
+
+            const template = `📑 DRAF STRUKTUR KARIL (KARYA ILMIAH UT) S1 MANAJEMEN
+
+Judul Usulan: ${topic}
+
+I. PENDAHULUAN
+   - Latar Belakang Masalah (Kondisi Ideal vs Realita Industri)
+   - Perumusan Masalah Akademis
+   - Tujuan dan Manfaat Penelitian
+
+II. KERANGKA TEORI & KAJIAN PUSTAKA
+   - Landasan Teori Utama (Sitasi BMP & Jurnal)
+   - Penelitian Terdahulu yang Relevan
+
+III. METODE PENELITIAN
+   - Jenis Penelitian (Kualitatif / Kuantitatif)
+   - Teknik Pengumpulan Data & Sampel
+
+IV. PEMBAHASAN & HASIL ANALISIS
+   - Deskripsi Hasil Olah Data
+   - Interpretasi & Implementasi Manajemen
+
+V. KESIMPULAN & SARAN
+   - Ringkasan Jawaban Rumusan Masalah
+   - Saran Rekomendasi Praktis untuk Perusahaan`;
+
+            resultBox.innerText = template;
+            resultBox.classList.remove('hidden');
+        }
+
+        // --- FUNGSI MULTI-PROVIDER AI (v2: model ditemukan otomatis, error jelas) ---
+        const AI_TIMEOUT_MS = 45000;
+
+        async function fetchJsonWithTimeout(url, options = {}) {
+            // Tanpa AbortController/AbortSignal: tidak bisa dikirim lewat postMessage di iframe/canvas
+            let timer;
+            const timeout = new Promise((_, rej) => {
+                timer = setTimeout(() => rej(new Error('Waktu tunggu habis (timeout)')), AI_TIMEOUT_MS);
+            });
+            try {
+                const work = (async () => {
+                    const res = await fetch(url, options);
+                    let data = null;
+                    try { data = await res.json(); } catch (_) { /* body bukan JSON */ }
+                    return { res, data };
+                })();
+                return await Promise.race([work, timeout]);
+            } catch (e) {
+                if (/timeout/i.test(e.message)) throw e;
+                throw new Error(`Gagal terhubung ke server (${e.message}). Cek koneksi internet / ekstensi pemblokir.`);
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        // Terjemahkan error HTTP menjadi pesan yang mudah dipahami
+        function explainAiError(provider, status, data) {
+            const raw = data?.error?.message || data?.message || '';
+            if (status === 400 && /api key|API_KEY_INVALID/i.test(raw + JSON.stringify(data || {}))) {
+                return `API Key ${provider} tidak valid. Salin ulang key dari dashboard ${provider} (tanpa spasi).`;
+            }
+            if (status === 401) return `API Key ${provider} ditolak (401). Key salah, kedaluwarsa, atau sudah dicabut.`;
+            if (status === 403) return `Akses ${provider} ditolak (403): ${raw || 'key dibatasi / API belum diaktifkan / key bocor lalu diblokir.'}`;
+            if (status === 404) return `Model tidak ditemukan di ${provider} (404). Kemungkinan model sudah dihentikan.`;
+            if (status === 429) return `Kuota ${provider} habis atau terlalu banyak permintaan (429). Tunggu sebentar atau pakai provider cadangan.`;
+            if (status >= 500) return `Server ${provider} sedang bermasalah (${status}). Coba lagi nanti.`;
+            return `${provider} error ${status}: ${raw || 'tanpa pesan'}`;
+        }
+
+        // Status yang artinya key-nya bermasalah -> tidak perlu mencoba model lain
+        const isKeyFatal = (status) => status === 401 || status === 403 || (status === 400);
+
+        function cacheGet(key) {
+            try {
+                const v = JSON.parse(sessionStorage.getItem(key) || 'null');
+                if (v && Date.now() - v.t < 6 * 60 * 60 * 1000) return v.d;
+            } catch (_) {}
+            return null;
+        }
+        function cacheSet(key, d) {
+            try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), d })); } catch (_) {}
+        }
+
+        // ---- GEMINI: ambil daftar model yang benar-benar tersedia untuk key ini ----
+        async function getGeminiModels(key) {
+            const ck = 'gm_models_' + key.slice(-8);
+            const cached = cacheGet(ck);
+            if (cached) return { models: cached };
+
+            const { res, data } = await fetchJsonWithTimeout(
+                `https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(key)}`
+            );
+            if (!res.ok) return { error: explainAiError('Gemini', res.status, data), status: res.status };
+
+            const skip = /image|tts|embedding|live|audio|robotics|veo|imagen|omni|lyria|deep-research|computer-use|aqa|gemma|learnlm/i;
+            const scored = (data.models || [])
+                .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+                .map(m => m.name.replace('models/', ''))
+                .filter(n => /^gemini-/.test(n) && !skip.test(n))
+                .map(n => {
+                    const mt = n.match(/^gemini-(\d+(?:\.\d+)?)-(flash-lite|flash|pro)/);
+                    if (!mt) return null;
+                    const version = parseFloat(mt[1]);
+                    const tier = { 'flash': 0, 'flash-lite': 1, 'pro': 2 }[mt[2]];
+                    const unstable = /preview|exp|latest|-\d{2,3}$|-\d{4}/.test(n) ? 1 : 0;
+                    return { n, version, tier, unstable };
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.tier - b.tier || b.version - a.version || a.unstable - b.unstable);
+
+            const models = [...new Set(scored.map(s => s.n))].slice(0, 4);
+            if (models.length) cacheSet(ck, models);
+            return { models };
+        }
+
+        async function tryGemini(key, payload, errors) {
+            let info;
+            try {
+                info = await getGeminiModels(key);
+            } catch (e) {
+                info = { error: `Gemini (daftar model): ${e.message}`, networkFail: true };
+            }
+            if (info.error) {
+                errors.push(info.error);
+                if (isKeyFatal(info.status)) return null; // key bermasalah, jangan buang waktu
+            }
+            let models = info.models && info.models.length
+                ? info.models
+                : ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash'];
+
+            for (const model of models) {
+                try {
+                    const { res, data } = await fetchJsonWithTimeout(
+                        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+                        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+                    );
+                    if (res.ok) {
+                        const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('');
+                        if (text) return data;
+                        const block = data?.promptFeedback?.blockReason || data?.candidates?.[0]?.finishReason;
+                        errors.push(`Gemini (${model}): respon kosong${block ? ` (alasan: ${block})` : ''}`);
+                        continue;
+                    }
+                    errors.push(`Gemini (${model}): ${explainAiError('Gemini', res.status, data)}`);
+                    if (isKeyFatal(res.status)) return null;
+                    if (res.status === 404) { try { sessionStorage.removeItem('gm_models_' + key.slice(-8)); } catch (_) {} }
+                } catch (e) {
+                    errors.push(`Gemini (${model}): ${e.message}`);
+                }
+            }
+            return null;
+        }
+
+        // ---- GROQ ----
+        async function getGroqModels(key) {
+            const ck = 'groq_models_' + key.slice(-8);
+            const cached = cacheGet(ck);
+            if (cached) return cached;
+            const fallback = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+            try {
+                const { res, data } = await fetchJsonWithTimeout('https://api.groq.com/openai/v1/models', {
+                    headers: { 'Authorization': `Bearer ${key}` }
+                });
+                if (!res.ok) return fallback;
+                const skip = /whisper|guard|tts|playai|orpheus|embed|distil/i;
+                const ids = (data.data || []).map(m => m.id).filter(id => !skip.test(id));
+                const pref = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+                const ordered = [...pref.filter(p => ids.includes(p)), ...ids.filter(id => !pref.includes(id))].slice(0, 3);
+                if (ordered.length) { cacheSet(ck, ordered); return ordered; }
+            } catch (_) {}
+            return fallback;
+        }
+
+        // ---- OPENROUTER ----
+        async function getOpenRouterModels() {
+            const cached = cacheGet('or_models');
+            if (cached) return cached;
+            const fallback = ['openrouter/free', 'meta-llama/llama-3.3-70b-instruct:free'];
+            try {
+                const { res, data } = await fetchJsonWithTimeout('https://openrouter.ai/api/v1/models');
+                if (!res.ok) return fallback;
+                const free = (data.data || [])
+                    .filter(m => /:free$/.test(m.id) && (m.architecture?.output_modalities || ['text']).includes('text'))
+                    .sort((a, b) => (b.context_length || 0) - (a.context_length || 0))
+                    .map(m => m.id).slice(0, 3);
+                const out = free.length ? free : fallback;
+                cacheSet('or_models', out);
+                return out;
+            } catch (_) { return fallback; }
+        }
+
+        async function tryOpenAiCompat({ name, url, key, models, systemPrompt, promptText, errors }) {
+            for (const model of models) {
+                try {
+                    const { res, data } = await fetchJsonWithTimeout(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+                        body: JSON.stringify({
+                            model,
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                { role: 'user', content: promptText }
+                            ]
+                        })
+                    });
+                    const text = data?.choices?.[0]?.message?.content;
+                    if (res.ok && text) {
+                        return { candidates: [{ content: { parts: [{ text: `[Respon via ${name} (${model})]\n\n${text}` }] } }] };
+                    }
+                    errors.push(`${name} (${model}): ${res.ok ? 'respon kosong' : explainAiError(name, res.status, data)}`);
+                    if (res.status === 401 || res.status === 403) return null;
+                } catch (e) {
+                    errors.push(`${name} (${model}): ${e.message}`);
+                }
+            }
+            return null;
+        }
+
+        async function callGeminiApi(payload) {
+            // Ambil teks & system prompt dari payload (mendukung system_instruction / systemInstruction)
+            let promptText = '';
+            if (payload.contents && payload.contents[0] && payload.contents[0].parts) {
+                promptText = payload.contents[0].parts.map(p => p.text || '').filter(Boolean).join('\n');
+            }
+            const sysFromPayload = (payload.system_instruction || payload.systemInstruction)?.parts?.map(p => p.text).join('\n');
+            const systemPrompt = sysFromPayload || aiSettings.systemPrompt || 'Kamu adalah Dosen Chisa Virtual.';
+            const errors = [];
+
+            // 1. GEMINI
+            const geminiKey = (aiSettings.apiKey || '').trim();
+            if (geminiKey) {
+                let data = null;
+                try { data = await tryGemini(geminiKey, payload, errors); } catch (e) { errors.push(`Gemini: ${e.message}`); }
+                if (data) return data;
+            } else {
+                errors.push('Gemini: key belum diisi');
+            }
+
+            // 2. GROQ (hanya teks; gambar tidak didukung)
+            const groqKey = (aiSettings.groqApiKey || '').trim();
+            if (groqKey) {
+                let data = null;
+                try {
+                    const models = await getGroqModels(groqKey);
+                    data = await tryOpenAiCompat({
+                        name: 'Groq', url: 'https://api.groq.com/openai/v1/chat/completions',
+                        key: groqKey, models, systemPrompt, promptText, errors
+                    });
+                } catch (e) { errors.push(`Groq: ${e.message}`); }
+                if (data) return data;
+            } else {
+                errors.push('Groq: key belum diisi');
+            }
+
+            // 3. OPENROUTER
+            const orKey = (aiSettings.openrouterApiKey || '').trim();
+            if (orKey) {
+                let data = null;
+                try {
+                    const models = await getOpenRouterModels();
+                    data = await tryOpenAiCompat({
+                        name: 'OpenRouter', url: 'https://openrouter.ai/api/v1/chat/completions',
+                        key: orKey, models, systemPrompt, promptText, errors
+                    });
+                } catch (e) { errors.push(`OpenRouter: ${e.message}`); }
+                if (data) return data;
+            } else {
+                errors.push('OpenRouter: key belum diisi');
+            }
+
+            const netFail = errors.some(m => /Gagal terhubung|Failed to fetch/i.test(m));
+            let hint = '';
+            if (netFail) {
+                hint = '\n\n💡 Permintaan diblokir sebelum sampai ke server. Penyebab umum: (1) halaman dibuka di pratinjau/iframe yang membatasi domain (mis. Canvas) -> simpan sebagai .html dan buka langsung di tab Chrome/Edge biasa; (2) AdBlock/Brave Shields/antivirus -> matikan untuk halaman ini; (3) VPN/DNS/jaringan kampus memblokir domain API; (4) tidak ada internet. Mode halaman: ' + location.protocol + (window.self !== window.top ? ' (di dalam iframe)' : ' (tab biasa)');
+            }
+            throw new Error(`Semua provider AI gagal dipanggil:\n• ${errors.join('\n• ')}${hint}`);
+        }
+
+        // Tombol "Tes Koneksi" di pengaturan: simpan dulu, lalu uji panggilan singkat
+        async function testAiKeys() {
+            const out = document.getElementById('ai-test-result');
+            saveAiSettingsSilently();
+            out.className = 'text-[11px] mt-1 text-sub whitespace-pre-wrap';
+            out.innerText = '⏳ Menguji koneksi...';
+            try {
+                const data = await callGeminiApi({ contents: [{ parts: [{ text: 'Balas satu kata saja: OK' }] }] });
+                const t = data.candidates[0].content.parts[0].text.trim().slice(0, 120);
+                out.className = 'text-[11px] mt-1 text-green-500 whitespace-pre-wrap';
+                out.innerText = `✅ Berhasil. Balasan AI: ${t}`;
+            } catch (e) {
+                out.className = 'text-[11px] mt-1 text-red-400 whitespace-pre-wrap';
+                out.innerText = `❌ ${e.message}`;
+            }
+        }
+
+        async function analyzeKarilAbstractWithAi() {
+            const topic = document.getElementById('karil-topic').value.trim();
+            const resultBox = document.getElementById('karil-result-box');
+            if (!topic) return alert('Masukkan Judul/Topik Karil terlebih dahulu!');
+
+            resultBox.innerText = "⏳ Dosen Chisa AI sedang menganalisis & merancang Abstrak Akademis Karil...";
+            resultBox.classList.remove('hidden');
+
+            const promptText = `Kamu adalah Dosen Chisa UT. Buatkan draf Abstrak Ilmiah akademis standar S1 Manajemen UT (150-200 kata) lengkap dengan Kata Kunci (3-5 frasa) berdasarkan topik: "${topic}"`;
+
+            try {
+                const data = await callGeminiApi({ contents: [{ parts: [{ text: promptText }] }] });
+                resultBox.innerText = data.candidates[0].content.parts[0].text;
+            } catch (err) {
+                resultBox.innerText = `Gagal memanggil AI: ${err.message}`;
+            }
+        }
+
+        function downloadCourseIcs() {
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Catatan Belajar Ku//S1 Manajemen UT//ID
+BEGIN:VEVENT
+SUMMARY:Tenggat Diskusi/Tugas Tuton - ${currentCourseName} (${currentCourseCode})
+DESCRIPTION:Pengingat tenggat pengerjaan Tugas dan Diskusi Tutorial Online Universitas Terbuka untuk mata kuliah ${currentCourseName}.
+DTSTART:20261015T235900Z
+DTEND:20261016T005900Z
+END:VEVENT
+END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Pengingat_${currentCourseCode}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            alert('File kalender (.ics) berhasil diunduh! Klik file tersebut untuk menambahkannya ke Google Calendar.');
+        }
+
+        function exportDataBackup() {
+            const backupPayload = {
+                userProfile: JSON.parse(localStorage.getItem('user_profile')),
+                schedules: JSON.parse(localStorage.getItem('ut_schedules')),
+                courseGrades: JSON.parse(localStorage.getItem('ut_course_grades')),
+                learningNotes: JSON.parse(localStorage.getItem('ut_learning_notes')),
+                discussionStatus: JSON.parse(localStorage.getItem('ut_discussion_status')),
+                tutonAssignments: JSON.parse(localStorage.getItem('ut_tuton_assignments')),
+                aiConfig: JSON.parse(localStorage.getItem('ai_dosen_config')),
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ut_learning_log_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.userProfile) localStorage.setItem('user_profile', JSON.stringify(importedData.userProfile));
+                    if (importedData.schedules) localStorage.setItem('ut_schedules', JSON.stringify(importedData.schedules));
+                    if (importedData.courseGrades) localStorage.setItem('ut_course_grades', JSON.stringify(importedData.courseGrades));
+                    if (importedData.learningNotes) localStorage.setItem('ut_learning_notes', JSON.stringify(importedData.learningNotes));
+                    if (importedData.discussionStatus) localStorage.setItem('ut_discussion_status', JSON.stringify(importedData.discussionStatus));
+                    if (importedData.tutonAssignments) localStorage.setItem('ut_tuton_assignments', JSON.stringify(importedData.tutonAssignments));
+                    if (importedData.aiConfig) localStorage.setItem('ai_dosen_config', JSON.stringify(importedData.aiConfig));
+                    
+                    alert('Data backup berhasil dipulihkan!');
+                    window.location.reload();
+                } catch (err) {
+                    alert('Format file JSON tidak valid.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportCourseNotesToTxt() {
+            let exportText = `====================================================\n`;
+            exportText += ` RINGKASAN CATATAN TUTON UT - ${currentCourseName} (${currentCourseCode})\n`;
+            exportText += ` Mahasiswa: ${userProfile ? userProfile.name : '-'} | NIM: ${userProfile ? userProfile.nim : '-'}\n`;
+            exportText += ` Tanggal Export: ${new Date().toLocaleDateString('id-ID')}\n`;
+            exportText += `====================================================\n\n`;
+
+            let hasNotes = false;
+            for (let i = 1; i <= 8; i++) {
+                const key = `${currentCourseCode}_sesi_${i}`;
+                if (notesData[key] && notesData[key].text) {
+                    hasNotes = true;
+                    exportText += `--- SESI ${i} --- [Disimpan: ${notesData[key].date || '-'}]\n`;
+                    exportText += `${notesData[key].text}\n`;
+                    if (notesData[key].fileName) exportText += `[File Lampiran: ${notesData[key].fileName}]\n`;
+                    exportText += `\n`;
+                }
+            }
+
+            if (!hasNotes) {
+                return alert('Belum ada catatan yang tersimpan untuk mata kuliah ini!');
+            }
+
+            const blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Catatan_${currentCourseCode}_${currentCourseName.replace(/\s+/g, '_')}.txt`;
+            link.click();
+        }
+
+        let pomoMinutes = 25, pomoSeconds = 0, pomoTimer = null, isPomoRunning = false;
+
+        function updatePomoDisplay() {
+            const m = pomoMinutes < 10 ? '0' + pomoMinutes : pomoMinutes;
+            const s = pomoSeconds < 10 ? '0' + pomoSeconds : pomoSeconds;
+            const el = document.getElementById('pomo-display');
+            if (el) el.innerText = `${m}:${s}`;
+        }
+
+        function startPomodoro() {
+            if (isPomoRunning) return;
+            isPomoRunning = true;
+            const startBtn = document.getElementById('pomo-start-btn');
+            if (startBtn) startBtn.classList.add('opacity-50');
+            pomoTimer = setInterval(() => {
+                if (pomoSeconds === 0) {
+                    if (pomoMinutes === 0) {
+                        clearInterval(pomoTimer);
+                        isPomoRunning = false;
+                        alert('🎉 Waktu fokus Pomodoro selesai! Istirahat 5 menit dulu yuk.');
+                        pomoMinutes = 5; pomoSeconds = 0;
+                        updatePomoDisplay();
+                        return;
+                    }
+                    pomoMinutes--;
+                    pomoSeconds = 59;
+                } else {
+                    pomoSeconds--;
+                }
+                updatePomoDisplay();
+            }, 1000);
+        }
+
+        function pausePomodoro() {
+            clearInterval(pomoTimer);
+            isPomoRunning = false;
+            const startBtn = document.getElementById('pomo-start-btn');
+            if (startBtn) startBtn.classList.remove('opacity-50');
+        }
+
+        function resetPomodoro() {
+            pausePomodoro();
+            pomoMinutes = 25; pomoSeconds = 0;
+            updatePomoDisplay();
+        }
+
+        function toggleAmbientRain() {
+            const audio = document.getElementById('rain-audio');
+            const btn = document.getElementById('rain-btn');
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = "🔊 Rain Ambient: ON";
+                btn.className = "text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-lg font-medium hover:bg-green-500/30 transition";
+            } else {
+                audio.pause();
+                btn.innerText = "🔊 Rain Ambient: OFF";
+                btn.className = "text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg font-medium hover:bg-blue-500/30 transition";
+            }
+        }
+
+        let scheduleData = JSON.parse(localStorage.getItem('ut_schedules')) || [
+            { id: 1, title: 'Diskusi Sesi 3 Komunikasi Bisnis', date: '2026-10-05' },
+            { id: 2, title: 'Tugas 1 Akuntansi Biaya', date: '2026-10-10' }
+        ];
+
+        function toggleScheduleForm() { document.getElementById('schedule-form').classList.toggle('hidden'); }
+
+        function renderSchedules() {
+            const container = document.getElementById('schedule-list');
+            if (!container) return;
+            container.innerHTML = '';
+            if (scheduleData.length === 0) {
+                container.innerHTML = `<span class="text-sub italic text-[10px]">Belum ada jadwal.</span>`;
+                return;
+            }
+            scheduleData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = "inner-box border p-1.5 px-2 rounded-lg flex justify-between items-center";
+                card.innerHTML = `<div><div class="font-semibold text-main text-[11px] truncate max-w-[140px]">${item.title}</div><div class="text-[9px] text-pink-500"><i class="far fa-clock mr-1"></i>Tenggat: ${item.date}</div></div><button onclick="deleteSchedule(${idx})" class="text-sub hover:text-pink-500 p-1"><i class="fas fa-trash-alt text-[10px]"></i></button>`;
+                container.appendChild(card);
+            });
+        }
+
+        function addSchedule() {
+            const title = document.getElementById('sched-title').value.trim();
+            const date = document.getElementById('sched-date').value;
+            if (!title || !date) return alert('Isi judul & tanggal!');
+            scheduleData.push({ title, date });
+            localStorage.setItem('ut_schedules', JSON.stringify(scheduleData));
+            document.getElementById('sched-title').value = '';
+            document.getElementById('sched-date').value = '';
+            toggleScheduleForm();
+            renderSchedules();
+        }
+
+        function deleteSchedule(idx) {
+            scheduleData.splice(idx, 1);
+            localStorage.setItem('ut_schedules', JSON.stringify(scheduleData));
+            renderSchedules();
+        }
+
+        const gradeScale = { 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'D': 1.0, 'E': 0.0 };
+        let courseGrades = JSON.parse(localStorage.getItem('ut_course_grades')) || {};
+
+        function calculateIPK() {
+            let totalPoints = 0;
+            let totalSKS = 0;
+
+            for (let sem in curriculumData) {
+                curriculumData[sem].forEach(c => {
+                    const letterGrade = courseGrades[c.code];
+                    if (letterGrade && gradeScale[letterGrade] !== undefined) {
+                        const point = gradeScale[letterGrade];
+                        totalPoints += point * c.sks;
+                        totalSKS += c.sks;
+                    }
+                });
+            }
+
+            const ipk = totalSKS > 0 ? (totalPoints / totalSKS).toFixed(2) : "0.00";
+            const ipkEl = document.getElementById('ipk-display');
+            const sksEl = document.getElementById('sks-display');
+            if (ipkEl) ipkEl.innerText = ipk;
+            if (sksEl) sksEl.innerText = totalSKS + " SKS";
+            updateChartsData();
+        }
+
+        function calculateTargetAdvice() {
+            const target = parseFloat(document.getElementById('target-ipk-input').value);
+            const box = document.getElementById('target-advice-box');
+            if (!box) return;
+            if (!target || isNaN(target)) {
+                box.innerText = "Masukkan target IPK di atas untuk melihat rekomendasi nilai minimal di sisa matkul.";
+                return;
+            }
+
+            let currentPoints = 0, currentSKS = 0, totalCurriculumSKS = 0;
+            for (let sem in curriculumData) {
+                curriculumData[sem].forEach(c => {
+                    totalCurriculumSKS += c.sks;
+                    const letterGrade = courseGrades[c.code];
+                    if (letterGrade && gradeScale[letterGrade] !== undefined) {
+                        currentPoints += gradeScale[letterGrade] * c.sks;
+                        currentSKS += c.sks;
+                    }
+                });
+            }
+
+            const remainingSKS = totalCurriculumSKS - currentSKS;
+            if (remainingSKS <= 0) {
+                box.innerText = "Semua matkul telah terisi nilainya!";
+                return;
+            }
+
+            const requiredPointsTotal = target * totalCurriculumSKS;
+            const neededPointsFromRemaining = requiredPointsTotal - currentPoints;
+            const requiredGPA = neededPointsFromRemaining / remainingSKS;
+
+            if (requiredGPA > 4.0) {
+                box.innerHTML = `<span class="text-red-400">Target IPK ${target} butuh rata-rata nilai > 4.0 di ${remainingSKS} SKS sisa. Coba atur target sedikit lebih realistis!</span>`;
+            } else if (requiredGPA <= 0) {
+                box.innerHTML = `<span class="text-green-400">Nilai kamu saat ini sudah melampaui target IPK ${target}! Pertahankan!</span>`;
+            } else {
+                let gradeHint = "A";
+                if (requiredGPA <= 3.0) gradeHint = "B";
+                else if (requiredGPA <= 3.3) gradeHint = "B+";
+                else if (requiredGPA <= 3.7) gradeHint = "A-";
+
+                box.innerHTML = `<span class="text-pink-400 font-semibold">Untuk meraih IPK ${target}, kamu wajib mengejar rata-rata nilai minimal <strong>${gradeHint} (${requiredGPA.toFixed(2)})</strong> di ${remainingSKS} SKS sisa.</span>`;
+            }
+        }
+
+        function openGradeModal() {
+            const container = document.getElementById('grade-input-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let sem = 1; sem <= 8; sem++) {
+                const semHeader = document.createElement('div');
+                semHeader.className = "font-bold text-xs text-pink-500 mt-2 border-b border-purple-800/30 pb-1";
+                semHeader.innerText = `Semester ${sem}`;
+                container.appendChild(semHeader);
+
+                curriculumData[sem].forEach(c => {
+                    const currentGrade = courseGrades[c.code] || '';
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center inner-box p-2 rounded border";
+                    row.innerHTML = `
+                        <div class="truncate pr-2">
+                            <span class="font-mono text-pink-500 text-[10px] font-bold">${c.code}</span>
+                            <div class="font-semibold text-main text-[11px] truncate">${c.name} (${c.sks} SKS)</div>
+                        </div>
+                        <select data-code="${c.code}" class="grade-select inner-box border rounded px-2 py-1 text-xs text-pink-500 font-bold focus:outline-none">
+                            <option value="">Belum Ada</option>
+                            <option value="A" ${currentGrade==='A'?'selected':''}>A (4.0)</option>
+                            <option value="A-" ${currentGrade==='A-'?'selected':''}>A- (3.7)</option>
+                            <option value="B+" ${currentGrade==='B+'?'selected':''}>B+ (3.3)</option>
+                            <option value="B" ${currentGrade==='B'?'selected':''}>B (3.0)</option>
+                            <option value="B-" ${currentGrade==='B-'?'selected':''}>B- (2.7)</option>
+                            <option value="C+" ${currentGrade==='C+'?'selected':''}>C+ (2.3)</option>
+                            <option value="C" ${currentGrade==='C'?'selected':''}>C (2.0)</option>
+                            <option value="D" ${currentGrade==='D'?'selected':''}>D (1.0)</option>
+                            <option value="E" ${currentGrade==='E'?'selected':''}>E (0.0)</option>
+                        </select>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            calculateTargetAdvice();
+            document.getElementById('grade-modal').classList.remove('hidden');
+        }
+
+        function closeGradeModal() { document.getElementById('grade-modal').classList.add('hidden'); }
+
+        function saveGrades() {
+            const selects = document.querySelectorAll('.grade-select');
+            selects.forEach(sel => {
+                const code = sel.getAttribute('data-code');
+                const val = sel.value;
+                if (val) {
+                    courseGrades[code] = val;
+                } else {
+                    delete courseGrades[code];
+                }
+            });
+            localStorage.setItem('ut_course_grades', JSON.stringify(courseGrades));
+            calculateIPK();
+            renderCourses();
+            closeGradeModal();
+            alert('Nilai berhasil disimpan dan IPK berhasil diperbarui!');
+        }
+
+        let ipkChartInstance = null;
+        let sksChartInstance = null;
+
+        function initCharts() {
+            const elLine = document.getElementById('ipkChart');
+            if (!elLine) return;
+            const ctxLine = elLine.getContext('2d');
+            ipkChartInstance = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'],
+                    datasets: [{
+                        label: 'IPK Semester',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#a855f7',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 4.0, ticks: { color: currentTheme === 'dark' ? '#d8b4fe' : '#6b21a8' } },
+                        x: { ticks: { color: currentTheme === 'dark' ? '#d8b4fe' : '#6b21a8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctxPie = document.getElementById('sksChart').getContext('2d');
+            sksChartInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SKS Lulus', 'Sizing SKS Sisa'],
+                    datasets: [{
+                        data: [0, 144],
+                        backgroundColor: ['#ec4899', 'rgba(168, 85, 247, 0.2)'],
+                        borderColor: 'transparent',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            updateChartsData();
+        }
+
+        function updateChartsData() {
+            if (!ipkChartInstance || !sksChartInstance) return;
+
+            let semesterGPA = [];
+            let cumulativeSKSAcc = 0;
+            let cumulativePointsAcc = 0;
+
+            for (let sem = 1; sem <= 8; sem++) {
+                let semPoints = 0, semSKS = 0;
+                curriculumData[sem].forEach(c => {
+                    const g = courseGrades[c.code];
+                    if (g && gradeScale[g] !== undefined) {
+                        semPoints += gradeScale[g] * c.sks;
+                        semSKS += c.sks;
+                    }
+                });
+                cumulativePointsAcc += semPoints;
+                cumulativeSKSAcc += semSKS;
+                semesterGPA.push(cumulativeSKSAcc > 0 ? (cumulativePointsAcc / cumulativeSKSAcc).toFixed(2) : 0);
+            }
+
+            ipkChartInstance.data.datasets[0].data = semesterGPA;
+            ipkChartInstance.update();
+
+            let totalPassedSKS = 0;
+            for (let sem in curriculumData) {
+                curriculumData[sem].forEach(c => {
+                    if (courseGrades[c.code]) totalPassedSKS += c.sks;
+                });
+            }
+            const remainingSKS = Math.max(0, 144 - totalPassedSKS);
+
+            sksChartInstance.data.datasets[0].data = [totalPassedSKS, remainingSKS];
+            sksChartInstance.update();
+
+            const legendEl = document.getElementById('sks-pie-legend');
+            if (legendEl) legendEl.innerText = `${totalPassedSKS} SKS Lulus (${Math.round((totalPassedSKS/144)*100)}%) • Sisa ${remainingSKS} SKS`;
+        }
+
+        function updateChartsTheme() {
+            if (!ipkChartInstance) return;
+            const textColor = currentTheme === 'dark' ? '#d8b4fe' : '#6b21a8';
+            ipkChartInstance.options.scales.y.ticks.color = textColor;
+            ipkChartInstance.options.scales.x.ticks.color = textColor;
+            ipkChartInstance.update();
+        }
+
+        function openChisaPsyModal() { document.getElementById('chisa-psy-modal').classList.remove('hidden'); }
+        function closeChisaPsyModal() { document.getElementById('chisa-psy-modal').classList.add('hidden'); }
+
+        async function askChisaPsy() {
+            const input = document.getElementById('psy-chat-input');
+            const msg = input.value.trim();
+            const chatLog = document.getElementById('psy-chat-log');
+
+            if (!msg) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-pink-600/30 border border-pink-500/40 p-2.5 rounded-lg text-main text-right font-medium";
+            userMsg.innerText = msg;
+            chatLog.appendChild(userMsg);
+            input.value = '';
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = "bg-purple-900/20 p-2.5 rounded-lg border border-purple-800/30 text-sub italic";
+            loadingMsg.innerText = "⏳ Chisa sedang merangkai saran & mendengarkan...";
+            chatLog.appendChild(loadingMsg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            const psyPrompt = "Kamu adalah Chisa, seorang Psikolog & Konsultan Belajar AI yang sangat empatik, hangat, ramah, dan solutif. Bantu mahasiswa yang merasa stres, capek, burnout, bingung mengatur jadwal belajar, atau butuh motivasi.";
+
+            try {
+                const payload = {
+                    system_instruction: { parts: [{ text: psyPrompt }] },
+                    contents: [{ parts: [{ text: `Mahasiswa: ${msg}` }] }]
+                };
+                const data = await callGeminiApi(payload);
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    loadingMsg.innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    loadingMsg.innerText = "Chisa terputus sebentar. Buka Edit API Keys AI lalu tekan Tes Koneksi.";
+                }
+            } catch (err) {
+                loadingMsg.innerText = `Gagal memanggil AI: ${err.message}`;
+            }
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        let aiSettings = JSON.parse(localStorage.getItem('ai_dosen_config')) || {
+            apiKey: '',
+            groqApiKey: '',
+            openrouterApiKey: '',
+            systemPrompt: 'Kamu adalah Dosen Chisa Virtual, dosen pengampu yang ramah, santai, namun sangat ahli. Jelaskan konsep materi kuliah dengan bahasa yang gampang dipahami, komunikatif, serta sertai contoh praktis.'
+        };
+
+        function openAiSettingsModal() {
+            document.getElementById('ai-api-key').value = aiSettings.apiKey || '';
+            document.getElementById('ai-groq-key').value = aiSettings.groqApiKey || '';
+            document.getElementById('ai-openrouter-key').value = aiSettings.openrouterApiKey || '';
+            document.getElementById('ai-system-prompt').value = aiSettings.systemPrompt || '';
+            document.getElementById('ai-settings-modal').classList.remove('hidden');
+        }
+
+        function closeAiSettingsModal() { document.getElementById('ai-settings-modal').classList.add('hidden'); }
+
+        function saveAiSettingsSilently() {
+            aiSettings.apiKey = document.getElementById('ai-api-key').value.trim();
+            aiSettings.groqApiKey = document.getElementById('ai-groq-key').value.trim();
+            aiSettings.openrouterApiKey = document.getElementById('ai-openrouter-key').value.trim();
+            aiSettings.systemPrompt = document.getElementById('ai-system-prompt').value.trim();
+            localStorage.setItem('ai_dosen_config', JSON.stringify(aiSettings));
+            try {
+                Object.keys(sessionStorage).filter(k => /^(gm_models_|groq_models_|or_models)/.test(k)).forEach(k => sessionStorage.removeItem(k));
+            } catch (_) {}
+        }
+
+        function saveAiSettings() {
+            saveAiSettingsSilently();
+            closeAiSettingsModal();
+            alert('Pengaturan Multi-Provider AI Gratis Berhasil Disimpan!');
+        }
+
+        async function askDosenAi() {
+            const input = document.getElementById('ai-matkul-input');
+            const fileInput = document.getElementById('ai-dosen-file');
+            const question = input.value.trim();
+            const box = document.getElementById('ai-response-box');
+            const file = fileInput.files[0];
+
+            if (!question && !file) return alert('Ketikkan pertanyaan atau pilih file terlebih dahulu!');
+
+            box.innerText = "⏳ Dosen Chisa Virtual sedang menganalisis pertanyaan & file kamu...";
+
+            try {
+                let parts = [{ text: `Mata Kuliah: ${currentCourseName} (${currentCourseCode})\nPertanyaan Mahasiswa: ${question || "Mohon analisis file materi yang saya lampirkan."}` }];
+
+                if (file) {
+                    if (file.type.startsWith('image/')) {
+                        const base64Data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = e => resolve(e.target.result.split(',')[1]);
+                            reader.readAsDataURL(file);
+                        });
+                        parts.push({ inline_data: { mime_type: file.type, data: base64Data } });
+                    } else {
+                        const fileContent = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = e => resolve(e.target.result);
+                            reader.readAsText(file);
+                        });
+                        parts.push({ text: `\n\n[Isi Lampiran File Text]:\n${fileContent}` });
+                    }
+                }
+
+                const payload = { 
+                    system_instruction: { parts: [{ text: aiSettings.systemPrompt }] },
+                    contents: [{ parts }] 
+                };
+
+                const data = await callGeminiApi(payload);
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    box.innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    box.innerText = "Gagal mendapatkan respon. Buka Edit API Keys AI lalu tekan Tes Koneksi.";
+                }
+            } catch (err) {
+                box.innerText = `Kesalahan panggilan AI: ${err.message}`;
+            }
+            input.value = '';
+            fileInput.value = '';
+        }
+
+        async function reviewDiscussionDraft() {
+            const draft = prompt("Tempelkan Draf Jawaban Diskusi kamu di sini untuk di-review & di-cek Anti-Plagiasi oleh Dosen Chisa:");
+            if (!draft || !draft.trim()) return;
+
+            const box = document.getElementById('ai-response-box');
+            box.innerText = "⏳ Dosen Chisa sedang mengevaluasi skor akademis, mendeteksi potensi plagiarisme, serta merancang saran parafrase...";
+
+            try {
+                const promptText = `Kamu adalah Dosen Chisa Virtual UT. Analisis draf jawaban diskusi mahasiswa berikut untuk mata kuliah ${currentCourseName}:\n\n"${draft}"\n\nTugasmu:\n1. Berikan Estimasi Skor (1-100)\n2. Analisis Tingkat Kemiripan/Resiko Plagiarisme (Rendah/Sedang/Tinggi)\n3. Berikan saran Parafrase Akademis agar lolos Turnitin / Portal e-Learning UT dengan bahasa sendiri.\n4. Sarankan sitasi/referensi Modul BMP UT yang tepat.`;
+                const data = await callGeminiApi({ contents: [{ parts: [{ text: promptText }] }] });
+                box.innerText = data.candidates[0].content.parts[0].text;
+            } catch (err) {
+                box.innerText = `Gagal memanggil AI: ${err.message}`;
+            }
+        }
+
+        async function generateMindmapText() {
+            const box = document.getElementById('ai-response-box');
+            box.innerText = "⏳ Dosen Chisa sedang menyusun Mindmap Tekstual dari materi matkul ini...";
+
+            let accumulatedNotes = [];
+            for (let i = 1; i <= 8; i++) {
+                const key = `${currentCourseCode}_sesi_${i}`;
+                if (notesData[key] && notesData[key].text) accumulatedNotes.push(`Sesi ${i}: ${notesData[key].text}`);
+            }
+
+            try {
+                const promptText = `Buatkan Mindmap Tekstual (hirarki bertingkat dengan simbol ASCII) yang sangat rapi untuk ringkasan materi ${currentCourseName}:\n${accumulatedNotes.join('\n')}`;
+                const data = await callGeminiApi({ contents: [{ parts: [{ text: promptText }] }] });
+                box.innerText = data.candidates[0].content.parts[0].text;
+            } catch (err) {
+                box.innerText = `Gagal memanggil AI: ${err.message}`;
+            }
+        }
+
+        async function generateQuizAi() {
+            const quizTable = document.getElementById('quiz-table-body');
+            
+            let accumulatedNotes = [];
+            for (let i = 1; i <= 8; i++) {
+                const key = `${currentCourseCode}_sesi_${i}`;
+                if (notesData[key] && notesData[key].text) {
+                    accumulatedNotes.push(`[Sesi ${i}]: ${notesData[key].text}`);
+                }
+            }
+
+            quizTable.innerHTML = `
+                <tr>
+                    <td colspan="2" class="p-4 text-center text-yellow-500 font-semibold italic">
+                        ⚡ Dosen Chisa Virtual sedang meracik 3 soal kuis & flashcard dari catatan kamu...
+                    </td>
+                </tr>
+            `;
+
+            const promptKuis = `Kamu adalah Dosen Chisa. Berdasarkan catatan materi mata kuliah ${currentCourseName} (${currentCourseCode}) berikut:\n${accumulatedNotes.length > 0 ? accumulatedNotes.join('\n') : "Materi dasar mata kuliah " + currentCourseName}\n\nBuatkan 3 pertanyaan kuis beserta jawabannya. Format jawaban kamu HARUS berupa JSON array persis seperti ini tanpa Markdown/teks tambahan:
+[
+  {"q": "Pertanyaan 1...", "a": "Jawaban 1..."},
+  {"q": "Pertanyaan 2...", "a": "Jawaban 2..."},
+  {"q": "Pertanyaan 3...", "a": "Jawaban 3..."}
+]`;
+
+            try {
+                const data = await callGeminiApi({ contents: [{ parts: [{ text: promptKuis }] }] });
+                let rawText = data.candidates[0].content.parts[0].text;
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const quizData = JSON.parse(rawText);
+                renderQuizRows(quizData);
+            } catch (err) {
+                renderQuizRows([
+                    { q: `Apa fokus utama dalam mata kuliah ${currentCourseName}?`, a: "Memahami konsep dasar, teori aplikasi, serta analisis studi kasus nyata dalam bisnis/manajemen." },
+                    { q: "Mengapa pemahaman materi Tuton penting di tiap sesinya?", a: "Agar pengerjaan diskusi dan tugas mingguan bisa lebih optimal serta siap menghadapi Ujian Akhir Semester (UAS)." },
+                    { q: "Bagaimana strategi efektif belajar mandiri UT?", a: "Membaca Modul BMP, merangkum poin penting di Sesi Tuton, dan berlatih soal-soal kuis mandiri." }
+                ]);
+            }
+        }
+
+        function renderQuizRows(quizList) {
+            const quizTable = document.getElementById('quiz-table-body');
+            quizTable.innerHTML = '';
+            quizList.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-900/10 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-main border-b border-purple-800/20 align-top">
+                        <span class="bg-pink-500/20 text-pink-500 text-[10px] px-1.5 py-0.5 rounded mr-1">Soal ${idx+1}</span>
+                        ${item.q}
+                    </td>
+                    <td class="p-3 text-sub border-b border-purple-800/20 align-top leading-relaxed">
+                        ${item.a}
+                    </td>
+                `;
+                quizTable.appendChild(tr);
+            });
+        }
+
+        const curriculumData = {
+            1: [ { code: 'EMBS4101', name: 'Manajemen', sks: 4 }, { code: 'EMBS4102', name: 'Pengantar Bisnis', sks: 3 }, { code: 'EMBS4103', name: 'Organisasi', sks: 3 }, { code: 'MKDI4201', name: 'Bahasa Inggris', sks: 3 }, { code: 'MKWN4101', name: 'Pendidikan Agama Islam', sks: 3 }, { code: 'MKWN4108', name: 'Bahasa Indonesia', sks: 2 } ],
+            2: [ { code: 'EACC4101', name: 'Pengantar Akuntansi', sks: 4 }, { code: 'ECON4102', name: 'Pengantar Ekonomi Mikro', sks: 3 }, { code: 'ECON4103', name: 'Matematika Ekonomi', sks: 3 }, { code: 'ECON4314', name: 'Perekonomian Indonesia', sks: 3 }, { code: 'MKDI4202', name: 'Belajar di Era Digital', sks: 3 }, { code: 'MKWN4110', name: 'Pancasila', sks: 2 } ],
+            3: [ { code: 'ECON4101', name: 'Pengantar Ekonomi Makro', sks: 3 }, { code: 'EMBS4204', name: 'Hubungan Industrial', sks: 2 }, { code: 'EMBS4205', name: 'Komunikasi Bisnis', sks: 3 }, { code: 'EMBS4206', name: 'Akuntansi Biaya', sks: 3 }, { code: 'EMBS4207', name: 'Perilaku Organisasi', sks: 3 }, { code: 'MKKI4201', name: 'Pengantar Statistika', sks: 3 }, { code: 'MKWN4109', name: 'Pendidikan Kewarganegaraan', sks: 2 } ],
+            4: [ { code: 'EMBS4208', name: 'Riset Operasi', sks: 3 }, { code: 'EMBS4209', name: 'Manajemen Sumber Daya Manusia', sks: 3 }, { code: 'EMBS4210', name: 'Manajemen Keuangan', sks: 3 }, { code: 'EMBS4211', name: 'Manajemen Operasi', sks: 3 }, { code: 'EMBS4212', name: 'Manajemen Pemasaran', sks: 3 }, { code: 'MKDI4203', name: 'Kewirausahaan di Era Digital', sks: 3 } ],
+            5: [ { code: 'EMBS4313', name: 'Analisis Kinerja Keuangan', sks: 3 }, { code: 'EMBS4316', name: 'Manajemen Operasi Jasa', sks: 3 }, { code: 'EMBS4317', name: 'Perilaku Konsumen', sks: 3 }, { code: 'EMBS4318', name: 'Pengembangan SDM', sks: 3 }, { code: 'EMBS4319', name: 'Manajemen Pengetahuan', sks: 3 }, { code: 'EMBS4320', name: 'Hukum Bisnis', sks: 2 }, { code: 'EMBS4321', name: 'Sistem Informasi Manajemen', sks: 3 }, { code: 'MKKI4301', name: 'Pemberdayaan Masyarakat', sks: 3 } ],
+            6: [ { code: 'EMBS4302', name: 'Metode Penelitian', sks: 3 }, { code: 'EMBS4322', name: 'Audit SDM', sks: 2 }, { code: 'EMBS4323', name: 'Pemasaran Strategik', sks: 3 }, { code: 'EMBS4324', name: 'Manajemen Perubahan', sks: 2 }, { code: 'EMBS4325', name: 'Pengembangan Produk', sks: 2 }, { code: 'EMBS4326', name: 'Akuntansi Manajemen', sks: 3 }, { code: 'EMBS4327', name: 'Ekonomi Manajerial', sks: 3 }, { code: 'EMBS4328', name: 'Manajemen Rantai Pasokan', sks: 3 } ],
+            7: [ { code: 'EACC4314', name: 'Bank & Lembaga Keuangan Non Bank', sks: 3 }, { code: 'EMBS4429', name: 'Pemasaran Jasa', sks: 3 }, { code: 'EMBS4430', name: 'Manajemen Strategik', sks: 3 }, { code: 'EMBS4450', name: 'UKT (Ujian Komprehensif Tertulis)', sks: 6 }, { code: 'EMBS4460', name: 'Artikel Ilmiah', sks: 6 }, { code: 'EMBS4480', name: 'Proyek', sks: 6 } ],
+            8: [ { code: 'EACC4209', name: 'Teori Portofolio & Analisis Investasi', sks: 3 }, { code: 'EMBS4431', name: 'Manajemen Kinerja', sks: 3 }, { code: 'EMBS4432', name: 'Studi Kelayakan Bisnis', sks: 3 }, { code: 'EMBS4433', name: 'E-Business', sks: 3 }, { code: 'EMBS4434', name: 'Manajemen Kualitas', sks: 3 }, { code: 'STSI4407', name: 'Manajemen Layanan Teknologi Informasi', sks: 3 } ]
+        };
+
+        const animeCoversBySemester = {
+            1: [ "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80", "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&q=80", "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" ],
+            2: [ "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80", "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80", "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80", "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" ],
+            3: [ "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80", "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80", "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&q=80", "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80" ],
+            4: [ "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80", "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80", "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80", "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80" ],
+            5: [ "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&q=80", "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80", "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80", "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80" ],
+            6: [ "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80", "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&q=80", "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80", "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80", "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80" ],
+            7: [ "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80", "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80" ],
+            8: [ "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80", "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80", "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80", "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80" ]
+        };
+
+        let currentCourseCode = '', currentCourseName = '';
+        let notesData = JSON.parse(localStorage.getItem('ut_learning_notes')) || {};
+        let discussionStatus = JSON.parse(localStorage.getItem('ut_discussion_status')) || {};
+        let tutonAssignments = JSON.parse(localStorage.getItem('ut_tuton_assignments')) || {};
+
+        function init() {
+            applyTheme(currentTheme);
+            checkFirstTimeUser();
+            renderSchedules();
+            calculateIPK();
+            renderTreeMenu();
+            renderCourses();
+            initCharts();
+            updateUtCountdowns();
+            setInterval(updateUtCountdowns, 60000);
+        }
+
+        function renderTreeMenu() {
+            const treeContainer = document.getElementById('tree-menu');
+            if (!treeContainer) return;
+            treeContainer.innerHTML = '';
+            const activeSem = userProfile && userProfile.semester ? parseInt(userProfile.semester) : 3;
+
+            for (let sem = 1; sem <= 8; sem++) {
+                const isCurrentSem = (sem === activeSem);
+                const details = document.createElement('details');
+                if (isCurrentSem) details.open = true;
+                details.className = "mt-1";
+                let coursesHtml = curriculumData[sem].map(c => 
+                    `<li><a href="#" onclick="openCourse('${c.code}', '${c.name}'); toggleSlideNav();" class="hover:text-pink-500 block text-xs truncate py-0.5 text-sub">› ${c.code} ${c.name}</a></li>`
+                ).join('');
+                details.innerHTML = `<summary class="cursor-pointer font-semibold ${isCurrentSem ? 'text-pink-500' : 'text-sub'} hover:underline text-xs">Semester ${sem} ${isCurrentSem ? '(Aktif)' : ''}</summary><ul class="pl-2 mt-1 space-y-1">${coursesHtml}</ul>`;
+                treeContainer.appendChild(details);
+            }
+        }
+
+        function renderCourses() {
+            const semValElem = document.getElementById('semester-filter');
+            const semVal = semValElem ? semValElem.value : 'all';
+            const grid = document.getElementById('course-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            let targetSemesters = (semVal === 'all') ? [1, 2, 3, 4, 5, 6, 7, 8] : [parseInt(semVal)];
+            targetSemesters.forEach(sem => {
+                const covers = animeCoversBySemester[sem] || animeCoversBySemester[1];
+                curriculumData[sem].forEach((course, idx) => {
+                    const coverImg = covers[idx % covers.length];
+                    const grade = courseGrades[course.code] || null;
+                    const gradeBadge = grade ? `<span class="bg-pink-500/80 text-white font-bold text-[10px] px-2 py-0.5 rounded border border-pink-300/40">Nilai: ${grade}</span>` : '';
+
+                    let activeDiscCount = 0;
+                    for (let s = 1; s <= 8; s++) {
+                        if (discussionStatus[`${course.code}_disc_${s}`]) activeDiscCount++;
+                    }
+                    const presencePercent = Math.round((activeDiscCount / 8) * 100);
+
+                    let checkBoxesHtml = '';
+                    for (let s = 1; s <= 8; s++) {
+                        const isDone = discussionStatus[`${course.code}_disc_${s}`] || false;
+                        checkBoxesHtml += `
+                            <button onclick="toggleDiscussionStatus('${course.code}', ${s})" class="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold border transition ${isDone ? 'bg-green-500 text-white border-green-400' : 'inner-box text-sub border-purple-800/40 hover:border-pink-500'}" title="Sesi ${s}">
+                                ${s}
+                            </button>
+                        `;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "card-bg rounded-xl border shadow-lg overflow-hidden hover:border-pink-500/50 transition duration-300 flex flex-col justify-between group";
+                    card.innerHTML = `
+                        <div>
+                            <div class="h-28 relative overflow-hidden bg-slate-950">
+                                <img src="${coverImg}" class="w-full h-full object-cover opacity-85 group-hover:scale-105 transition duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent p-3 flex justify-between items-start text-white">
+                                    <span class="bg-black/60 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-purple-400/40 backdrop-blur-sm text-purple-200">${course.code}</span>
+                                    <div class="flex gap-1">
+                                        ${gradeBadge}
+                                        <span class="text-[10px] bg-purple-900/80 px-2 py-0.5 rounded font-medium border border-purple-400/30 text-pink-200">Sem ${sem} • ${course.sks} SKS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-bold text-main text-xs sm:text-sm leading-snug mb-1 line-clamp-2">${course.name}</h3>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-[10px] text-sub">S1 Manajemen • UT</span>
+                                    <a href="https://pustaka.ut.ac.id/lib/ruangbaca/" target="_blank" class="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold">
+                                        <i class="fas fa-book-reader"></i> Modul RBV
+                                    </a>
+                                </div>
+
+                                <div class="space-y-1 mb-2.5">
+                                    <div class="flex justify-between text-[9px] font-semibold text-sub">
+                                        <span>Kehadiran & Keaktifan Tuton:</span>
+                                        <span class="${presencePercent >= 80 ? 'text-green-400 font-bold' : 'text-pink-400'}">${presencePercent}% (${activeDiscCount}/8 Sesi)</span>
+                                    </div>
+                                    <div class="w-full bg-purple-900/30 rounded-full h-1.5 overflow-hidden border border-purple-700/30">
+                                        <div class="bg-gradient-to-r from-pink-500 to-green-500 h-1.5 rounded-full transition-all duration-300" style="width: ${presencePercent}%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-purple-800/30">
+                                    <div class="text-[9px] text-sub font-semibold mb-1">Checklist Kehadiran Sesi 1-8:</div>
+                                    <div class="flex gap-1 flex-wrap">
+                                        ${checkBoxesHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 pt-0">
+                            <button onclick="openCourse('${course.code}', '${course.name}')" class="w-full bg-gradient-to-r from-purple-800 to-indigo-800 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-semibold py-2 rounded-lg transition shadow-md border border-purple-600/30">
+                                Enter This Course
+                            </button>
+                        </div>`;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        function toggleDiscussionStatus(code, sessionNum) {
+            const key = `${code}_disc_${sessionNum}`;
+            discussionStatus[key] = !discussionStatus[key];
+            localStorage.setItem('ut_discussion_status', JSON.stringify(discussionStatus));
+            renderCourses();
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('course-detail-view').classList.add('hidden');
+        }
+
+        function openCourse(code, name) {
+            currentCourseCode = code;
+            currentCourseName = name;
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('course-detail-view').classList.remove('hidden');
+            document.getElementById('course-title').innerText = name;
+            document.getElementById('course-code-badge').innerText = code;
+            document.getElementById('ai-dosen-title').innerText = `Dosen Chisa Virtual: ${name}`;
+            document.getElementById('ai-response-box').innerText = `Halo! Saya Dosen Chisa Virtual pengampu mata kuliah ${name}. Ada konsep atau pertanyaan forum yang kurang kamu pahami? Tanyakan saja atau lampirkan file materi di bawah!`;
+            
+            document.getElementById('quiz-table-body').innerHTML = `
+                <tr>
+                    <td colspan="2" class="p-4 text-center text-sub italic">
+                        Klik tombol <strong>"Generate Kuis Baru"</strong> untuk membuat soal kuis otomatis berdasarkan catatan matkul ini!
+                    </td>
+                </tr>
+            `;
+
+            renderTutonAssignments();
+            renderSessions();
+        }
+
+        function renderTutonAssignments() {
+            const container = document.getElementById('tuton-assignments-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const tasks = [
+                { num: 1, session: 3, label: 'Tugas 1 (Sesi 3)' },
+                { num: 2, session: 5, label: 'Tugas 2 (Sesi 5)' },
+                { num: 3, session: 7, label: 'Tugas 3 (Sesi 7)' }
+            ];
+
+            tasks.forEach(t => {
+                const key = `${currentCourseCode}_tugas_${t.num}`;
+                const data = tutonAssignments[key] || { status: 'Belum', score: '' };
+
+                const card = document.createElement('div');
+                card.className = "inner-box p-3 rounded-lg border space-y-2";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center font-bold text-main">
+                        <span>${t.label}</span>
+                        <select onchange="updateTutonAssignment('${key}', 'status', this.value)" class="inner-box border rounded px-1.5 py-0.5 text-[10px] font-bold text-pink-500 focus:outline-none">
+                            <option value="Belum" ${data.status==='Belum'?'selected':''}>🔴 Belum</option>
+                            <option value="Proses" ${data.status==='Proses'?'selected':''}>🟡 Proses</option>
+                            <option value="Selesai" ${data.status==='Selesai'?'selected':''}>🟢 Selesai</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sub text-[10px]">Nilai:</span>
+                        <input type="number" min="0" max="100" placeholder="0-100" value="${data.score}" onchange="updateTutonAssignment('${key}', 'score', this.value)" class="w-16 inner-box border rounded p-1 text-[11px] font-bold text-right text-main">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateTutonAssignment(key, field, value) {
+            if (!tutonAssignments[key]) tutonAssignments[key] = { status: 'Belum', score: '' };
+            tutonAssignments[key][field] = value;
+            localStorage.setItem('ut_tuton_assignments', JSON.stringify(tutonAssignments));
+        }
+
+        function toggleForm() { document.getElementById('add-form').classList.toggle('hidden'); }
+
+        function renderSessions() {
+            const container = document.getElementById('session-list');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= 8; i++) {
+                const key = `${currentCourseCode}_sesi_${i}`;
+                const savedNote = notesData[key] || null;
+                const sessionCard = document.createElement('div');
+                sessionCard.className = "card-bg p-4 rounded-xl shadow-md border transition-colors duration-300";
+
+                let noteContent = `<p class="text-xs text-sub italic">Belum ada catatan diskusi untuk Sesi ${i}.</p>`;
+                if (savedNote) {
+                    let fileBtn = '';
+                    if (savedNote.fileData) {
+                        fileBtn = `<a href="${savedNote.fileData}" download="${savedNote.fileName}" class="text-xs text-pink-500 font-semibold bg-purple-900/25 hover:bg-purple-900/40 p-2 rounded-lg inline-flex items-center gap-1.5 border border-purple-700/30 transition cursor-pointer mt-2"><i class="fas fa-download text-pink-500"></i> Unduh File: ${savedNote.fileName}</a>`;
+                    } else if (savedNote.fileName) {
+                        fileBtn = `<div class="text-xs text-sub inner-box p-2 rounded-lg inline-block mt-2 border"><i class="fas fa-paperclip mr-1"></i> File: ${savedNote.fileName}</div>`;
+                    }
+
+                    noteContent = `
+                        <div class="inner-box p-3 rounded-lg border text-xs text-main whitespace-pre-wrap leading-relaxed">${savedNote.text}</div>
+                        ${fileBtn}
+                        ${savedNote.date ? `<div class="text-[10px] text-sub mt-2">Disimpan: ${savedNote.date}</div>` : ''}
+                    `;
+                }
+                sessionCard.innerHTML = `<div class="flex justify-between items-center border-b border-purple-800/30 pb-2 mb-3"><h3 class="font-bold text-sm text-pink-500">📂 Sesi ${i}</h3><span class="text-[10px] bg-purple-900/30 text-pink-500 px-2 py-0.5 rounded font-semibold border border-purple-700/30">Sesi ${i}</span></div>${noteContent}`;
+                container.appendChild(sessionCard);
+            }
+        }
+
+        function saveNote() {
+            const sesi = document.getElementById('input-sesi').value;
+            const text = document.getElementById('input-text').value;
+            const fileInput = document.getElementById('input-file');
+            const file = fileInput.files[0];
+
+            if (!text.trim()) return alert('Silakan isi teks diskusi terlebih dahulu!');
+
+            const key = `${currentCourseCode}_sesi_${sesi}`;
+            const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            if (file) {
+                if (file.size > 3 * 1024 * 1024) {
+                    return alert('Ukuran file maksimal 3 MB.');
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    notesData[key] = { text: text, fileName: file.name, fileData: e.target.result, date: dateStr };
+                    localStorage.setItem('ut_learning_notes', JSON.stringify(notesData));
+                    document.getElementById('input-text').value = '';
+                    fileInput.value = '';
+                    toggleForm();
+                    renderSessions();
+                    renderCourses();
+                    alert(`Catatan & File Sesi ${sesi} berhasil disimpan!`);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                notesData[key] = { text: text, fileName: '', fileData: '', date: dateStr };
+                localStorage.setItem('ut_learning_notes', JSON.stringify(notesData));
+                document.getElementById('input-text').value = '';
+                fileInput.value = '';
+                toggleForm();
+                renderSessions();
+                renderCourses();
+                alert(`Catatan Sesi ${sesi} berhasil disimpan!`);
+            }
+        }
+
+        window.onload = function() {
+            init();
+        };
+    </script>
+<script>
+        // Avatar Chisa disematkan langsung (tidak bergantung link luar)
+        const CHISA_AVATAR = "data:image/jpeg;base64,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";
+        document.querySelectorAll('img[data-chisa]').forEach(i => { i.src = CHISA_AVATAR; });
+    </script>
+</body>
+</html>
